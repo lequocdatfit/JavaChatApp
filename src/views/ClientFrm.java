@@ -2,6 +2,7 @@ package views;
 
 import Thread.ReadThread;
 import Thread.WriteThread;
+import model.User;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,20 +16,23 @@ public class ClientFrm extends JFrame {
     private JButton btnSend;
     private JList list1;
     private ServerListFrm serverList;
-    private Socket s;
 
-    public ClientFrm(Frame serverList, Socket s) {
+    private Socket s;
+    private User currentUser;
+
+    public ClientFrm(Frame serverList, Socket s, User user) {
         super();
         serverList = (ServerListFrm) serverList;
+        currentUser = user;
         setTitle("Chat app");
         setContentPane(rootPanel);
-        setSize(500, 400);
+        setSize(700, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         Thread readThread = new Thread(new ReadThread(this, s));
         readThread.start();
-        Thread writeThread = new Thread(new WriteThread(this, s));
+        Thread writeThread = new Thread(new WriteThread(this, s, currentUser));
         writeThread.start();
     }
 
@@ -38,7 +42,7 @@ public class ClientFrm extends JFrame {
             System.out.println("Connected to server");
             Thread readThread = new Thread(new ReadThread(this, s));
             readThread.start();
-            Thread writeThread = new Thread(new WriteThread(this, s));
+            Thread writeThread = new Thread(new WriteThread(this, s, currentUser));
             writeThread.start();
         } catch (IOException e) {
             e.printStackTrace();

@@ -65,11 +65,13 @@ public class ServerFrm extends JFrame{
             public void run() {
                 try {
                     s = new ServerSocket(PORT);
+                    txtServerLog.append("Server listening on port " + PORT + "\n");
                     while (true) {
-                        txtServerLog.append("Server listening on port " + PORT + "\n");
+                        txtServerLog.append("Waiting for client...\n");
                         Socket ss = s.accept();
                         txtServerLog.append("A user connected!\n");
                         ClientThread client = new ClientThread(ServerFrm.this, ss, clients);
+                        clients.add(client);
                         pool.execute(client);
                     }
                 } catch (IOException e) {

@@ -2,6 +2,7 @@ package views;
 
 import model.ServerDetail;
 import model.ServerDetailRendered;
+import model.User;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,10 +17,12 @@ public class ServerListFrm extends JFrame {
     private JPanel rootPanel;
     private JButton btnConnect;
     private LoginFrm login;
+    private User currentUser;
 
-    public ServerListFrm(Frame login) {
+    public ServerListFrm(Frame login, User user) {
         super();
         login = (LoginFrm) login;
+        currentUser = user;
         setTitle("Chọn server");
         setContentPane(rootPanel);
         setSize(500, 400);
@@ -42,8 +45,9 @@ public class ServerListFrm extends JFrame {
                 try {
                     s = new Socket(server.getHostName(), server.getPort());
                     JOptionPane.showMessageDialog(rootPanel, "Đã kết nối!");
-                    ClientFrm frm = new ClientFrm(ServerListFrm.this, s);
+                    ClientFrm frm = new ClientFrm(ServerListFrm.this, s, currentUser);
                     frm.setVisible(true);
+                    setVisible(false);
                 } catch (IOException exception) {
                     JOptionPane.showMessageDialog(rootPanel, "Kết nối thất bại!");
                     exception.printStackTrace();
