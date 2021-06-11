@@ -1,5 +1,6 @@
 package Thread;
 
+import DAO.DAO;
 import model.Message;
 import model.User;
 import views.ServerFrm;
@@ -36,13 +37,16 @@ public class ClientThread implements Runnable{
                     currentUser = (User) request.getPayload();
                     serverFrm.ServerLogAppend(currentUser.getId());
 
-                    // emit event new user connected to all users.
+                    // notify existing users
                     Message userConnEvent = new Message("USER_CONN", currentUser);
                     broadcastAllExcludeCurrentSocket(userConnEvent);
 
                     // fetch all user
-
+                    ArrayList<User> list_users = fetchAllUsers();
+                    // emit event setUser
+                    Message emitFetchUsers = new Message("FETCH_USERS", list_users);
                 }
+
             } while (true);
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -71,6 +75,12 @@ public class ClientThread implements Runnable{
             exception.printStackTrace();
         }
 
+    }
+
+    public ArrayList<User> fetchAllUsers() {
+        ArrayList<User> ls = new DAO().getAllUsers();
+        ls.forEach((user -> user.setConnected(true)));
+        return ls;
     }
 
     public User getUser() {

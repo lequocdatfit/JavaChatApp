@@ -1,7 +1,7 @@
 package views;
 
-import Thread.ReadThread;
 import Thread.WriteThread;
+import Thread.ReadThread;
 import model.User;
 
 import javax.swing.*;
@@ -22,13 +22,13 @@ public class ClientFrm extends JFrame {
 
     public ClientFrm(Frame serverList, Socket s, User user) {
         super();
-        serverList = (ServerListFrm) serverList;
-        currentUser = user;
         setTitle("Chat app");
         setContentPane(rootPanel);
         setSize(700, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        serverList = (ServerListFrm) serverList;
+        currentUser = user;
 
         Thread readThread = new Thread(new ReadThread(this, s));
         readThread.start();

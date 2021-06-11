@@ -35,9 +35,9 @@ public class WriteThread implements Runnable{
             // tell server you're online
             writer.writeObject(sessionEvent);
             writer.flush();
-            /*do {
-
-            } while (true); */
+            do {
+                System.out.println("Hello");
+            } while (true);
         } catch (IOException exception) {
             exception.printStackTrace();
         }

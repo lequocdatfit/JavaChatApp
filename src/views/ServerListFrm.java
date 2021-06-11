@@ -52,8 +52,6 @@ public class ServerListFrm extends JFrame {
                     JOptionPane.showMessageDialog(rootPanel, "Kết nối thất bại!");
                     exception.printStackTrace();
                 }
-
-
             }
         });
     }
