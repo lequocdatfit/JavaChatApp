@@ -40,7 +40,7 @@
               </grid>
             </constraints>
             <properties>
-              <text value="lequocdat44"/>
+              <text value="lequocdat"/>
             </properties>
           </component>
           <component id="a4841" class="javax.swing.JLabel">

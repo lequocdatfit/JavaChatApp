@@ -19,7 +19,7 @@ public class DAO {
     }
 
     public ArrayList<User> getAllUsers() {
-        ArrayList<User> ls = null;
+        ArrayList<User> ls = new ArrayList<>();
         String sql = "SELECT * FROM User";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);

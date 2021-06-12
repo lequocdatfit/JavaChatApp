@@ -43,8 +43,10 @@ public class ClientThread implements Runnable{
 
                     // fetch all user
                     ArrayList<User> list_users = fetchAllUsers();
-                    // emit event setUser
+                    // emit event fetchUsers
                     Message emitFetchUsers = new Message("FETCH_USERS", list_users);
+                    this.sendMessage(emitFetchUsers);
+                    serverFrm.ServerLogAppend("Fetch_user\n");
                 }
 
             } while (true);
@@ -71,6 +73,7 @@ public class ClientThread implements Runnable{
     public void sendMessage(Message serverMessage) {
         try {
             out.writeObject(serverMessage);
+            out.flush();
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -79,7 +82,18 @@ public class ClientThread implements Runnable{
 
     public ArrayList<User> fetchAllUsers() {
         ArrayList<User> ls = new DAO().getAllUsers();
-        ls.forEach((user -> user.setConnected(true)));
+        //ls.forEach((user -> user.setConnected(true)));
+        for (int i=0; i< ls.size(); i++) {
+            User u = ls.get(i);
+            u.setConnected(false);
+            for (int j=0; j < clients.size(); j++) {
+                ClientThread client = clients.get(j);
+                if(client.getUser().getId().equals(u.getId())) {
+                    u.setConnected(true);
+                    break;
+                }
+            }
+        }
         return ls;
     }
 
