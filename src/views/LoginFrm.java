@@ -13,6 +13,7 @@ public class LoginFrm extends JFrame {
     private JPasswordField txtPassword;
     private JButton btnLogin;
     private JButton btnExit;
+    private JButton btnSignUp;
 
     public LoginFrm() {
         super();
@@ -46,6 +47,14 @@ public class LoginFrm extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.exit(0);
+            }
+        });
+        btnSignUp.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SignUpFrm frm = new SignUpFrm(LoginFrm.this);
+                frm.setVisible(true);
+                setVisible(false);
             }
         });
     }

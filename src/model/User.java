@@ -16,6 +16,12 @@ public class User implements Serializable {
         this.password = password;
     }
 
+    public User(String nameLogin, String name, String password) {
+        this.nameLogin = nameLogin;
+        this.name = name;
+        this.password = password;
+    }
+
     public Boolean getConnected() {
         return isConnected;
     }

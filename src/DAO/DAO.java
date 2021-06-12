@@ -77,4 +77,19 @@ public class DAO {
         }
         return user;
     }
+
+    public boolean addNewUser(User s) {
+        String sql = "INSERT INTO user(NameLogin, Name, Password) VALUES(?, ?, ?)";
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, s.getNameLogin());
+            ps.setString(2, s.getName());
+            ps.setString(3, s.getPassword());
+            ps.execute();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 }
