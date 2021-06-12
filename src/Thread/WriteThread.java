@@ -16,27 +16,37 @@ public class WriteThread implements Runnable{
     private ClientFrm client;
     private ObjectOutputStream writer;
     private User user;
+    private Message message;
 
-    public WriteThread(ClientFrm client, Socket s, User user) {
+    public WriteThread(ClientFrm client, Socket s, User user, Message msg, ObjectOutputStream out) {
         this.client = client;
         this.socket = s;
         this.user = user;
-
+        this.message = msg;
+        writer = out;
     }
 
     @Override
     public void run() {
-        Message sessionEvent = new Message("SESSION", user);
         try {
-            writer = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+            //writer = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
             // tell server you're online
-            writer.writeObject(sessionEvent);
+            writer.writeObject(message);
+            if(message.getType().equals("PRIVATE_MESSAGE")) {
+                System.out.println("sending private");
+            }
             writer.flush();
-            do {
-                //System.out.println("Hello");
-            } while (true);
         } catch (IOException exception) {
             exception.printStackTrace();
         }
+        /*switch (message.getType()) {
+            case "SESSION":
+
+                break;
+            case "PRIVATE_MESSAGE":
+
+            default:
+                break;
+        }*/
     }
 }

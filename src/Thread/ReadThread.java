@@ -31,12 +31,22 @@ public class ReadThread implements Runnable{
         do {
             try {
                 response = (Message) reader.readObject();
-                if(response.getType().equals("FETCH_USERS")) {
-                    System.out.println(response.getType());
-                    client.updateListUsers((ArrayList<User>) response.getPayload());
-                } else if(response.getType().equals("USER_CONN")){
-                    System.out.println("USER_CONN");
-                    client.setUserOnline((User) response.getPayload());
+                switch (response.getType()) {
+                    case "FETCH_USERS" -> {
+                        System.out.println(response.getType());
+                        client.updateListUsers((ArrayList<User>) response.getPayload());
+                        break;
+                    }
+                    case "USER_CONN" -> {
+                        System.out.println("USER_CONN");
+                        client.setUserOnline((User) response.getPayload());
+                        break;
+                    }
+                    case "PRIVATE_MESSAGE" -> {
+                        System.out.println("Has new message");
+                        client.onPrivateMessage(response);
+                        break;
+                    }
                 }
             } catch (IOException | ClassNotFoundException exception) {
                 exception.printStackTrace();

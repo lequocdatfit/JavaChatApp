@@ -47,6 +47,10 @@ public class ClientThread implements Runnable{
                     Message emitFetchUsers = new Message("FETCH_USERS", list_users);
                     this.sendMessage(emitFetchUsers);
                     serverFrm.ServerLogAppend("Fetch_user\n");
+                } else if(request.getType().equals("PRIVATE_MESSAGE")) {
+                    // forward the private message to the right recipient (and to the other tab of sender)
+                    String recipient = request.getTo();
+                    this.forwardPrivateMessage(recipient, request);
                 }
 
             } while (true);
@@ -66,6 +70,14 @@ public class ClientThread implements Runnable{
         for (ClientThread aClient : clients) {
             if(!aClient.getUser().getId().equals(this.getUser().getId())) {
                 aClient.sendMessage(msg);
+            }
+        }
+    }
+
+    public void forwardPrivateMessage(String userId, Message serverMessage) {
+        for (ClientThread client : clients) {
+            if(client.getUser().getId().equals(userId)) {
+                client.sendMessage(serverMessage);
             }
         }
     }

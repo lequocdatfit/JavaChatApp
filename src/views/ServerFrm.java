@@ -6,6 +6,8 @@ import Thread.ClientThread;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -18,6 +20,7 @@ public class ServerFrm extends JFrame{
     private JButton btnStartServer;
     private JTextArea txtServerLog;
     private JPanel rootPanel;
+    private JScrollPane scrollPanel;
     private ServerSocket s;
     private int PORT = 3000;
     boolean isStarting = false;
@@ -34,6 +37,12 @@ public class ServerFrm extends JFrame{
         setSize(400, 300);
         setTitle("Server Configuration");
         setLocationRelativeTo(null);
+
+        scrollPanel.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
+            }
+        });
         btnStartServer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
