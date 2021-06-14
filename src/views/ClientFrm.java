@@ -7,6 +7,7 @@ import model.MessageStore;
 import model.User;
 import model.UserRendered;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -15,6 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -27,6 +29,11 @@ public class ClientFrm extends JFrame {
     private JButton btnSend;
     private JList jListUsers;
     private JScrollPane scrollPanelMsg;
+    private JButton button1;
+    private JButton button2;
+    private JButton button3;
+    private JButton button4;
+    private JButton button5;
     private ServerListFrm serverList;
     private DefaultListModel<User> usersListModel;
 
@@ -39,7 +46,7 @@ public class ClientFrm extends JFrame {
         super();
         setTitle("Chat app");
         setContentPane(rootPanel);
-        setSize(700, 600);
+        setSize(800, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.serverList = (ServerListFrm) serverList;
@@ -50,6 +57,10 @@ public class ClientFrm extends JFrame {
             exception.printStackTrace();
         }
 
+        txtMessage.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 5));
+        txtMessage.setMargin(new Insets(10, 10, 10, 10));
+
+
         scrollPanelMsg.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
             public void adjustmentValueChanged(AdjustmentEvent e) {
                 e.getAdjustable().setValue(e.getAdjustable().getMaximum());
@@ -59,6 +70,8 @@ public class ClientFrm extends JFrame {
         usersListModel = new DefaultListModel<>();
         jListUsers.setModel(usersListModel);
         jListUsers.setCellRenderer(new UserRendered());
+        // default select user;
+        jListUsers.setSelectedIndex(0);
 
         jListUsers.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -70,10 +83,9 @@ public class ClientFrm extends JFrame {
                 Message[] listMessages = MessageStore.findMessageForUser(selectedUserId);
                 if(listMessages != null) {
                     for (Message msg: listMessages) {
-                        MessageArea.setText((String) msg.getPayload() + "\n");
+                        MessageArea.append((String) msg.getPayload() + "\n");
                     }
                 }
-
             }
         });
 
@@ -86,13 +98,15 @@ public class ClientFrm extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String content = txtMessage.getText();
-                String to = ((User) jListUsers.getSelectedValue()).getId();
-                Message privateMessage = new Message("PRIVATE_MESSAGE", content, currentUser.getId(), to);
-                Thread privateThread = new Thread(new WriteThread(ClientFrm.this, s, currentUser, privateMessage, writer));
-                privateThread.start();
-                txtMessage.setText("");
-                MessageArea.append(content + "\n");
-                MessageStore.saveMessage(to, privateMessage);
+                if(!content.equals("")) {
+                    String to = ((User) jListUsers.getSelectedValue()).getId();
+                    Message privateMessage = new Message("PRIVATE_MESSAGE", content, currentUser.getId(), to);
+                    Thread privateThread = new Thread(new WriteThread(ClientFrm.this, s, currentUser, privateMessage, writer));
+                    privateThread.start();
+                    txtMessage.setText("");
+                    MessageArea.append(content + "\n");
+                    MessageStore.saveMessage(to, privateMessage);
+                }
             }
         });
 
@@ -122,14 +136,20 @@ public class ClientFrm extends JFrame {
     }
 
     public void setUserOnline(User u) {
-        for (User user : listUser) {
+        /*for (User user : listUser) {
             if(user.getId().equals(u.getId())) {
                 user.setConnected(true);
             }
-        }
+        }*/
+        u.setConnected(true);
+        listUser.add(u);
+        usersListModel.addElement(u);
     }
 
     public void onPrivateMessage(Message msg) {
-        MessageArea.append((String) msg.getPayload() + "\n");
+        MessageStore.saveMessage(msg.getFrom(), msg);
+        if(((User) jListUsers.getSelectedValue()).getId().equals(msg.getFrom())) {
+            MessageArea.append((String) msg.getPayload() + "\n");
+        }
     }
 }

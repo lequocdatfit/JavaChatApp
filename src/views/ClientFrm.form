@@ -3,12 +3,12 @@
   <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="500" height="400"/>
+      <xy x="20" y="20" width="842" height="555"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <grid id="836ec" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="836ec" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -25,14 +25,16 @@
             <children>
               <component id="5d8dd" class="javax.swing.JTextArea" binding="MessageArea">
                 <constraints/>
-                <properties/>
+                <properties>
+                  <editable value="false"/>
+                </properties>
               </component>
             </children>
           </scrollpane>
           <grid id="a518d" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
             <border type="none"/>
@@ -50,18 +52,65 @@
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Gửi"/>
+                  <icon value="img/send.png"/>
+                  <margin top="0" left="0" bottom="0" right="0"/>
+                  <opaque value="true"/>
+                  <text value=""/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="9170b" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="c5ae9" class="javax.swing.JButton" binding="button1" default-binding="true">
+                <constraints/>
+                <properties>
+                  <icon value="img/happy.png"/>
+                  <text value=""/>
+                </properties>
+              </component>
+              <component id="9969" class="javax.swing.JButton" binding="button2" default-binding="true">
+                <constraints/>
+                <properties>
+                  <icon value="img/sad.png"/>
+                  <text value=""/>
+                </properties>
+              </component>
+              <component id="3c707" class="javax.swing.JButton" binding="button3" default-binding="true">
+                <constraints/>
+                <properties>
+                  <icon value="img/smile.png"/>
+                  <text value=""/>
+                </properties>
+              </component>
+              <component id="f9fe4" class="javax.swing.JButton" binding="button4" default-binding="true">
+                <constraints/>
+                <properties>
+                  <icon value="img/wink.png"/>
+                  <text value=""/>
+                </properties>
+              </component>
+              <component id="90763" class="javax.swing.JButton" binding="button5" default-binding="true">
+                <constraints/>
+                <properties>
+                  <icon value="img/shocked.png"/>
+                  <text value=""/>
                 </properties>
               </component>
             </children>
           </grid>
         </children>
       </grid>
-      <grid id="a6264" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="a6264" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <preferred-size width="154" height="24"/>
+            <preferred-size width="250" height="24"/>
           </grid>
         </constraints>
         <properties/>
@@ -76,16 +125,20 @@
             <children>
               <component id="85a0e" class="javax.swing.JList" binding="jListUsers">
                 <constraints/>
-                <properties/>
+                <properties>
+                  <background color="-657931"/>
+                  <selectionBackground color="-1315861"/>
+                </properties>
               </component>
             </children>
           </scrollpane>
           <component id="81436" class="javax.swing.JLabel">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Label"/>
+              <font name="Ubuntu Mono" size="16"/>
+              <text value="Chat Everything"/>
             </properties>
           </component>
         </children>

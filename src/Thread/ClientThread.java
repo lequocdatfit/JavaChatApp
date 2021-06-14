@@ -1,12 +1,14 @@
 package Thread;
 
 import DAO.DAO;
+import model.Client;
 import model.Message;
 import model.User;
 import views.ServerFrm;
 
 import java.awt.*;
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -36,6 +38,11 @@ public class ClientThread implements Runnable{
                     // get user
                     currentUser = (User) request.getPayload();
                     serverFrm.ServerLogAppend(currentUser.getId());
+
+                    String address = ((InetSocketAddress) client.getRemoteSocketAddress()).getAddress().toString();
+                    Client cl = new Client(address, this.client.getPort(), currentUser.getName());
+                    serverFrm.addNewClient(cl);
+                    serverFrm.updateClientTable();
 
                     // notify existing users
                     Message userConnEvent = new Message("USER_CONN", currentUser);
@@ -93,7 +100,7 @@ public class ClientThread implements Runnable{
     }
 
     public ArrayList<User> fetchAllUsers() {
-        ArrayList<User> ls = new DAO().getAllUsers();
+        /*ArrayList<User> ls = new DAO().getAllUsers();
         //ls.forEach((user -> user.setConnected(true)));
         for (int i=0; i< ls.size(); i++) {
             User u = ls.get(i);
@@ -105,6 +112,13 @@ public class ClientThread implements Runnable{
                     break;
                 }
             }
+        }
+        return ls; */
+        ArrayList<User> ls = new ArrayList<>();
+        for (ClientThread cl : clients) {
+            User u = cl.getUser();
+            u.setConnected(true);
+            ls.add(u);
         }
         return ls;
     }

@@ -1,9 +1,11 @@
 package views;
 
+import model.Client;
 import model.User;
 import Thread.ClientThread;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
@@ -12,6 +14,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -21,7 +24,10 @@ public class ServerFrm extends JFrame{
     private JTextArea txtServerLog;
     private JPanel rootPanel;
     private JScrollPane scrollPanel;
+    private JTable tblClient;
+    private DefaultTableModel clientModel;
     private ServerSocket s;
+    private List<Client> listClient;
     private int PORT = 3000;
     boolean isStarting = false;
     Thread serverThread;
@@ -34,9 +40,17 @@ public class ServerFrm extends JFrame{
         super();
         setContentPane(rootPanel);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(400, 300);
+        setSize(700, 600);
         setTitle("Server Configuration");
         setLocationRelativeTo(null);
+
+        listClient = new ArrayList<>();
+        clientModel = (DefaultTableModel) tblClient.getModel();
+        clientModel.setColumnIdentifiers(new Object[] {
+                "STT", "IP address", "Port", "Username"
+        });
+        tblClient.setModel(clientModel);
+
 
         scrollPanel.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
             public void adjustmentValueChanged(AdjustmentEvent e) {
@@ -52,6 +66,7 @@ public class ServerFrm extends JFrame{
                     isStarting = false;
                     txtPort.setEditable(true);
                     btnStartServer.setText("Start server");
+                    clearClientTable();
                     return;
                 }
                 try {
@@ -65,6 +80,10 @@ public class ServerFrm extends JFrame{
                 }
             }
         });
+    }
+
+    public void clearClientTable() {
+        clientModel.setRowCount(0);
     }
 
     public void startServer() throws IOException {
@@ -99,6 +118,21 @@ public class ServerFrm extends JFrame{
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void updateClientTable() {
+        clientModel.setRowCount(0);
+        for (int i=0; i<listClient.size(); i++) {
+            Client cl = listClient.get(i);
+            clientModel.addRow(new Object[] {
+                i + 1, cl.getIpAddress(), cl.getPort(), cl.getUsername()
+            });
+        }
+
+    }
+
+    public void addNewClient(Client client) {
+        listClient.add(client);
     }
 
     public void ServerLogAppend(String text) {

@@ -9,8 +9,9 @@ public class UserRendered extends JPanel implements ListCellRenderer<User> {
     private JLabel lbStatus = new JLabel();
 
     public UserRendered() {
-        setLayout(new BorderLayout(5, 5));
-        setBorder(BorderFactory.createMatteBorder(0, 0 , 1, 0, Color.gray));
+        setLayout(new BorderLayout(10, 10));
+        //setBorder(BorderFactory.createMatteBorder(0, 0 , 1, 0, Color.gray));
+        setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
         JPanel panelText = new JPanel(new GridLayout(0, 1));
         panelText.add(lbUsername);
         panelText.add(lbStatus);
@@ -21,11 +22,11 @@ public class UserRendered extends JPanel implements ListCellRenderer<User> {
     @Override
     public Component getListCellRendererComponent(JList<? extends User> list, User value, int index, boolean isSelected, boolean cellHasFocus) {
         ImageIcon imageIcon = new ImageIcon(new ImageIcon(getClass().getResource("/img/user-profile.png"))
-                .getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT));
+                .getImage().getScaledInstance(40, 40, Image.SCALE_DEFAULT));
         lbIcon.setIcon(imageIcon);
         lbUsername.setText(value.getName());
         lbStatus.setText(value.getConnected() ? "Online" : "Offline");
-        lbStatus.setForeground(Color.BLUE);
+        lbStatus.setForeground(Color.GREEN);
         lbUsername.setOpaque(true);
         lbStatus.setOpaque(true);
         lbIcon.setOpaque(true);
