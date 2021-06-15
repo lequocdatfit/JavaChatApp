@@ -12,6 +12,8 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.html.HTMLDocument;
 import java.awt.*;
@@ -63,6 +65,7 @@ public class ClientFrm extends JFrame {
 
 
         MessageArea.setContentType("text/html");
+
         doc = (HTMLDocument) MessageArea.getStyledDocument();
 
         txtMessage.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 5));
@@ -85,7 +88,7 @@ public class ClientFrm extends JFrame {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 System.out.println("state change!");
-                MessageArea.setText("");
+                MessageArea.setText("<br/>");
                 // find message for selected user
                 String selectedUserId = ((User) jListUsers.getSelectedValue()).getId();
                 Message[] listMessages = MessageStore.findMessageForUser(selectedUserId);
@@ -147,8 +150,21 @@ public class ClientFrm extends JFrame {
                     privateThread.start();
                     txtMessage.setText("");
 
+
                     try {
-                        doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()), "<strong>"+ content + "</strong><br/>");
+                        doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                "<div style='display: inline-block; margin:0 0 26px; text-align: right;\n" +
+                                        "  padding: 0 0 0 220px;\n" +
+                                        "  vertical-align: top;\n" +
+                                        "  width: 92%;'><div style='width: 57%;'>" +
+                                        "<strong style='background: #05728F none repeat scroll 0 0;\n" +
+                                        "  border-radius: 3px;\n" +
+                                        "  color: #ffffff;\n" +
+                                        "  font-size: 14px;\n" +
+                                        "  margin: 0 0 20 0;\n" +
+                                        "  padding: 5px 10px 5px 12px;\n" +
+                                        "  width: 100%;'>"+ content + "</strong>" +
+                                        "</div></div><br/>");
                     } catch (BadLocationException | IOException badLocationException) {
                         badLocationException.printStackTrace();
                     }
@@ -303,6 +319,7 @@ public class ClientFrm extends JFrame {
         MessageStore.saveMessage(msg.getFrom(), msg);
         if(((User) jListUsers.getSelectedValue()).getId().equals(msg.getFrom())) {
             //MessageArea.append((String) msg.getPayload() + "\n");
+
             try {
                 if(msg.getPayload().equals("(y)")) {
                     String url = ClientFrm.class.getClassLoader().getResource("img/like.png").toString();
@@ -326,7 +343,19 @@ public class ClientFrm extends JFrame {
                             "<img src='"+ url + "'/><br/>");
                 }
                 else {
-                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()), "<strong>"+ (String) msg.getPayload() + "</strong><br/>");
+                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                            "<div style='display: inline-block; margin:0 0 26px;\n" +
+                            "  padding: 0 0 0 10px;\n" +
+                            "  vertical-align: top;\n" +
+                            "  width: 92%;'><div style='width: 57%; float: left;'>" +
+                            "<strong style='background: #ebebeb none repeat scroll 0 0;\n" +
+                                    "  border-radius: 3px;\n" +
+                                    "  color: #646464;\n" +
+                                    "  font-size: 14px;\n" +
+                                    "  margin: 0 0 20 0;\n" +
+                                    "  padding: 5px 10px 5px 12px;\n" +
+                                    "  width: 100%;'>"+ (String) msg.getPayload() + "</strong>" +
+                            "</div></div><br/>");
                 }
             }
             catch (BadLocationException | IOException badLocationException) {
