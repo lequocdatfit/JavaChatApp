@@ -1,5 +1,6 @@
 package views;
 
+import DAO.DAO;
 import Thread.WriteThread;
 import Thread.ReadThread;
 import model.Message;
@@ -90,7 +91,8 @@ public class ClientFrm extends JFrame {
                 System.out.println("state change!");
                 MessageArea.setText("<br/>");
                 // find message for selected user
-                String selectedUserId = ((User) jListUsers.getSelectedValue()).getId();
+                User selectedUser = ((User) jListUsers.getSelectedValue());
+                String selectedUserId = selectedUser.getId();
                 Message[] listMessages = MessageStore.findMessageForUser(selectedUserId);
                 if(listMessages != null) {
                     for (Message msg: listMessages) {
@@ -100,34 +102,70 @@ public class ClientFrm extends JFrame {
                         } catch (BadLocationException | IOException badLocationException) {
                             badLocationException.printStackTrace();
                         }*/
-                        try {
-                            if(msg.getPayload().equals("(y)")) {
-                                String url = ClientFrm.class.getClassLoader().getResource("img/like.png").toString();
-                                doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                        "<img src='"+ url + "'/><br/>");
-                            } else if(msg.getPayload().equals("^_^")) {
-                                String url = ClientFrm.class.getClassLoader().getResource("img/smile.png").toString();
-                                doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                        "<img src='"+ url + "'/><br/>");
-                            } else if(msg.getPayload().equals(">:0")) {
-                                String url = ClientFrm.class.getClassLoader().getResource("img/happy.png").toString();
-                                doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                        "<img src='"+ url + "'/><br/>");
-                            } else if(msg.getPayload().equals(":(")) {
-                                String url = ClientFrm.class.getClassLoader().getResource("img/sad.png").toString();
-                                doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                        "<img src='"+ url + "'/><br/>");
-                            } else if(msg.getPayload().equals(":O")) {
-                                String url = ClientFrm.class.getClassLoader().getResource("img/shocked.png").toString();
-                                doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                        "<img src='"+ url + "'/><br/>");
+                        if(selectedUserId.equals(msg.getFrom())) {
+                            try {
+                                if(msg.getPayload().equals("(y)")) {
+                                    String url = ClientFrm.class.getClassLoader().getResource("img/like.png").toString();
+                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                            "<div><pre>" + "<span style='color: red;'>" + selectedUser.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                } else if(msg.getPayload().equals("^_^")) {
+                                    String url = ClientFrm.class.getClassLoader().getResource("img/smile.png").toString();
+                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                            "<div><pre>" + "<span style='color: red;'>" + selectedUser.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                } else if(msg.getPayload().equals(">:0")) {
+                                    String url = ClientFrm.class.getClassLoader().getResource("img/happy.png").toString();
+                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                            "<div><pre>" + "<span style='color: red;'>" + selectedUser.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                } else if(msg.getPayload().equals(":(")) {
+                                    String url = ClientFrm.class.getClassLoader().getResource("img/sad.png").toString();
+                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                            "<div><pre>" + "<span style='color: red;'>" + selectedUser.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                } else if(msg.getPayload().equals(":O")) {
+                                    String url = ClientFrm.class.getClassLoader().getResource("img/shocked.png").toString();
+                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                            "<div><pre>" + "<span style='color: red;'>" + selectedUser.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                }
+                                else {
+                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                            "<div style='background-color: #ebebeb; margin: 0 0 10px 0;'><pre style='color: #000;'>"
+                                                    + "<span style='color: red;'>" + selectedUser.getName() + ": </span>" + (String) msg.getPayload() + "</pre></div><br/>");
+                                }
                             }
-                            else {
-                                doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()), "<strong>"+ (String) msg.getPayload() + "</strong><br/>");
+                            catch (BadLocationException | IOException badLocationException) {
+                                badLocationException.printStackTrace();
                             }
-                        }
-                        catch (BadLocationException | IOException badLocationException) {
-                            badLocationException.printStackTrace();
+                        } else {
+                            try {
+                                if(msg.getPayload().equals("(y)")) {
+                                    String url = ClientFrm.class.getClassLoader().getResource("img/like.png").toString();
+                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                            "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                } else if(msg.getPayload().equals("^_^")) {
+                                    String url = ClientFrm.class.getClassLoader().getResource("img/smile.png").toString();
+                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                            "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                } else if(msg.getPayload().equals(">:0")) {
+                                    String url = ClientFrm.class.getClassLoader().getResource("img/happy.png").toString();
+                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                            "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                } else if(msg.getPayload().equals(":(")) {
+                                    String url = ClientFrm.class.getClassLoader().getResource("img/sad.png").toString();
+                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                            "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                } else if(msg.getPayload().equals(":O")) {
+                                    String url = ClientFrm.class.getClassLoader().getResource("img/shocked.png").toString();
+                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                            "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                }
+                                else {
+                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                            "<div style='background-color: #05728F; margin: 0 0 10px 0;'><pre style='color: #fff'>"
+                                                    + "<span style='color: yellow;'>you: </span>" + (String) msg.getPayload() + "</pre></div><br/>");
+                                }
+                            }
+                            catch (BadLocationException | IOException badLocationException) {
+                                badLocationException.printStackTrace();
+                            }
                         }
                     }
                 }
@@ -150,21 +188,11 @@ public class ClientFrm extends JFrame {
                     privateThread.start();
                     txtMessage.setText("");
 
-
+                    //System.out.println(content);
                     try {
                         doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                "<div style='display: inline-block; margin:0 0 26px; text-align: right;\n" +
-                                        "  padding: 0 0 0 220px;\n" +
-                                        "  vertical-align: top;\n" +
-                                        "  width: 92%;'><div style='width: 57%;'>" +
-                                        "<strong style='background: #05728F none repeat scroll 0 0;\n" +
-                                        "  border-radius: 3px;\n" +
-                                        "  color: #ffffff;\n" +
-                                        "  font-size: 14px;\n" +
-                                        "  margin: 0 0 20 0;\n" +
-                                        "  padding: 5px 10px 5px 12px;\n" +
-                                        "  width: 100%;'>"+ content + "</strong>" +
-                                        "</div></div><br/>");
+                                "<div style='background-color: #05728F; margin: 0 0 10px 0;'><pre style='color: #fff'>"
+                                + "<span style='color: yellow;'>you: </span>" + content + "</pre></div><br/>");
                     } catch (BadLocationException | IOException badLocationException) {
                         badLocationException.printStackTrace();
                     }
@@ -186,9 +214,10 @@ public class ClientFrm extends JFrame {
 
                 String url = ClientFrm.class.getClassLoader().getResource("img/like.png").toString();
 
+
                 try {
                     doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                            "<img src='"+ url + "'/><br/>");
+                            "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
                 } catch (BadLocationException | IOException badLocationException) {
                     badLocationException.printStackTrace();
                 }
@@ -210,7 +239,7 @@ public class ClientFrm extends JFrame {
 
                 try {
                     doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                            "<img src='"+ url + "'/><br/>");
+                            "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
                 } catch (BadLocationException | IOException badLocationException) {
                     badLocationException.printStackTrace();
                 }
@@ -231,7 +260,7 @@ public class ClientFrm extends JFrame {
 
                 try {
                     doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                            "<img src='"+ url + "'/><br/>");
+                            "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
                 } catch (BadLocationException | IOException badLocationException) {
                     badLocationException.printStackTrace();
                 }
@@ -252,7 +281,7 @@ public class ClientFrm extends JFrame {
 
                 try {
                     doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                            "<img src='"+ url + "'/><br/>");
+                            "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
                 } catch (BadLocationException | IOException badLocationException) {
                     badLocationException.printStackTrace();
                 }
@@ -273,7 +302,7 @@ public class ClientFrm extends JFrame {
 
                 try {
                     doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                            "<img src='"+ url + "'/><br/>");
+                            "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
                 } catch (BadLocationException | IOException badLocationException) {
                     badLocationException.printStackTrace();
                 }
@@ -319,43 +348,33 @@ public class ClientFrm extends JFrame {
         MessageStore.saveMessage(msg.getFrom(), msg);
         if(((User) jListUsers.getSelectedValue()).getId().equals(msg.getFrom())) {
             //MessageArea.append((String) msg.getPayload() + "\n");
-
+            User from = new DAO().getUserById(msg.getFrom());
             try {
                 if(msg.getPayload().equals("(y)")) {
                     String url = ClientFrm.class.getClassLoader().getResource("img/like.png").toString();
                     doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                            "<img src='"+ url + "'/><br/>");
+                            "<div><pre>" + "<span style='color: red;'>" +from.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
                 } else if(msg.getPayload().equals("^_^")) {
                     String url = ClientFrm.class.getClassLoader().getResource("img/smile.png").toString();
                     doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                            "<img src='"+ url + "'/><br/>");
+                            "<div><pre>" + "<span style='color: red;'>" +from.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
                 } else if(msg.getPayload().equals(">:0")) {
                     String url = ClientFrm.class.getClassLoader().getResource("img/happy.png").toString();
                     doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                            "<img src='"+ url + "'/><br/>");
+                            "<div><pre>" + "<span style='color: red;'>" +from.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
                 } else if(msg.getPayload().equals(":(")) {
                     String url = ClientFrm.class.getClassLoader().getResource("img/sad.png").toString();
                     doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                            "<img src='"+ url + "'/><br/>");
+                            "<div><pre>" + "<span style='color: red;'>" +from.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
                 } else if(msg.getPayload().equals(":O")) {
                     String url = ClientFrm.class.getClassLoader().getResource("img/shocked.png").toString();
                     doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                            "<img src='"+ url + "'/><br/>");
+                            "<div><pre>" + "<span style='color: red;'>" +from.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
                 }
                 else {
                     doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                            "<div style='display: inline-block; margin:0 0 26px;\n" +
-                            "  padding: 0 0 0 10px;\n" +
-                            "  vertical-align: top;\n" +
-                            "  width: 92%;'><div style='width: 57%; float: left;'>" +
-                            "<strong style='background: #ebebeb none repeat scroll 0 0;\n" +
-                                    "  border-radius: 3px;\n" +
-                                    "  color: #646464;\n" +
-                                    "  font-size: 14px;\n" +
-                                    "  margin: 0 0 20 0;\n" +
-                                    "  padding: 5px 10px 5px 12px;\n" +
-                                    "  width: 100%;'>"+ (String) msg.getPayload() + "</strong>" +
-                            "</div></div><br/>");
+                            "<div style='background-color: #ebebeb; margin: 0 0 10px 0;'><pre style='color: #000;'>"
+                               + "<span style='color: red;'>" + from.getName() + ": </span>" + (String) msg.getPayload() + "</pre></div><br/>");
                 }
             }
             catch (BadLocationException | IOException badLocationException) {
