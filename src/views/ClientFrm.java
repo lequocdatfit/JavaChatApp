@@ -11,6 +11,9 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.StyledDocument;
+import javax.swing.text.html.HTMLDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,16 +27,17 @@ import java.util.ArrayList;
 
 public class ClientFrm extends JFrame {
     private JPanel rootPanel;
-    private JTextArea MessageArea;
     private JTextArea txtMessage;
     private JButton btnSend;
     private JList jListUsers;
     private JScrollPane scrollPanelMsg;
-    private JButton button1;
-    private JButton button2;
-    private JButton button3;
-    private JButton button4;
-    private JButton button5;
+    private JButton btnLike;
+    private JButton btnSad;
+    private JButton btnSmile;
+    private JButton btnHappy;
+    private JButton btnShock;
+    private JTextPane MessageArea;
+    private HTMLDocument doc;
     private ServerListFrm serverList;
     private DefaultListModel<User> usersListModel;
 
@@ -56,6 +60,10 @@ public class ClientFrm extends JFrame {
         } catch (IOException exception) {
             exception.printStackTrace();
         }
+
+
+        MessageArea.setContentType("text/html");
+        doc = (HTMLDocument) MessageArea.getStyledDocument();
 
         txtMessage.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 5));
         txtMessage.setMargin(new Insets(10, 10, 10, 10));
@@ -83,7 +91,41 @@ public class ClientFrm extends JFrame {
                 Message[] listMessages = MessageStore.findMessageForUser(selectedUserId);
                 if(listMessages != null) {
                     for (Message msg: listMessages) {
-                        MessageArea.append((String) msg.getPayload() + "\n");
+                        //MessageArea.append((String) msg.getPayload() + "\n");
+                        /*try {
+                            doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()), "<strong>"+ (String) msg.getPayload() + "</strong>");
+                        } catch (BadLocationException | IOException badLocationException) {
+                            badLocationException.printStackTrace();
+                        }*/
+                        try {
+                            if(msg.getPayload().equals("(y)")) {
+                                String url = ClientFrm.class.getClassLoader().getResource("img/like.png").toString();
+                                doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                        "<img src='"+ url + "'/><br/>");
+                            } else if(msg.getPayload().equals("^_^")) {
+                                String url = ClientFrm.class.getClassLoader().getResource("img/smile.png").toString();
+                                doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                        "<img src='"+ url + "'/><br/>");
+                            } else if(msg.getPayload().equals(">:0")) {
+                                String url = ClientFrm.class.getClassLoader().getResource("img/happy.png").toString();
+                                doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                        "<img src='"+ url + "'/><br/>");
+                            } else if(msg.getPayload().equals(":(")) {
+                                String url = ClientFrm.class.getClassLoader().getResource("img/sad.png").toString();
+                                doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                        "<img src='"+ url + "'/><br/>");
+                            } else if(msg.getPayload().equals(":O")) {
+                                String url = ClientFrm.class.getClassLoader().getResource("img/shocked.png").toString();
+                                doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                        "<img src='"+ url + "'/><br/>");
+                            }
+                            else {
+                                doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()), "<strong>"+ (String) msg.getPayload() + "</strong><br/>");
+                            }
+                        }
+                        catch (BadLocationException | IOException badLocationException) {
+                            badLocationException.printStackTrace();
+                        }
                     }
                 }
             }
@@ -104,13 +146,124 @@ public class ClientFrm extends JFrame {
                     Thread privateThread = new Thread(new WriteThread(ClientFrm.this, s, currentUser, privateMessage, writer));
                     privateThread.start();
                     txtMessage.setText("");
-                    MessageArea.append(content + "\n");
+
+                    try {
+                        doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()), "<strong>"+ content + "</strong><br/>");
+                    } catch (BadLocationException | IOException badLocationException) {
+                        badLocationException.printStackTrace();
+                    }
                     MessageStore.saveMessage(to, privateMessage);
                 }
             }
         });
 
 
+        btnLike.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String content = "(y)";
+                String to = ((User) jListUsers.getSelectedValue()).getId();
+                Message privateMessage = new Message("PRIVATE_MESSAGE", content, currentUser.getId(), to);
+                Thread privateThread = new Thread(new WriteThread(ClientFrm.this, s, currentUser, privateMessage, writer));
+                privateThread.start();
+                txtMessage.setText("");
+
+                String url = ClientFrm.class.getClassLoader().getResource("img/like.png").toString();
+
+                try {
+                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                            "<img src='"+ url + "'/><br/>");
+                } catch (BadLocationException | IOException badLocationException) {
+                    badLocationException.printStackTrace();
+                }
+                MessageStore.saveMessage(to, privateMessage);
+
+            }
+        });
+        btnSmile.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String content = "^_^";
+                String to = ((User) jListUsers.getSelectedValue()).getId();
+                Message privateMessage = new Message("PRIVATE_MESSAGE", content, currentUser.getId(), to);
+                Thread privateThread = new Thread(new WriteThread(ClientFrm.this, s, currentUser, privateMessage, writer));
+                privateThread.start();
+                txtMessage.setText("");
+
+                String url = ClientFrm.class.getClassLoader().getResource("img/smile.png").toString();
+
+                try {
+                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                            "<img src='"+ url + "'/><br/>");
+                } catch (BadLocationException | IOException badLocationException) {
+                    badLocationException.printStackTrace();
+                }
+                MessageStore.saveMessage(to, privateMessage);
+            }
+        });
+        btnHappy.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String content = ">:0";
+                String to = ((User) jListUsers.getSelectedValue()).getId();
+                Message privateMessage = new Message("PRIVATE_MESSAGE", content, currentUser.getId(), to);
+                Thread privateThread = new Thread(new WriteThread(ClientFrm.this, s, currentUser, privateMessage, writer));
+                privateThread.start();
+                txtMessage.setText("");
+
+                String url = ClientFrm.class.getClassLoader().getResource("img/happy.png").toString();
+
+                try {
+                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                            "<img src='"+ url + "'/><br/>");
+                } catch (BadLocationException | IOException badLocationException) {
+                    badLocationException.printStackTrace();
+                }
+                MessageStore.saveMessage(to, privateMessage);
+            }
+        });
+        btnSad.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String content = ":(";
+                String to = ((User) jListUsers.getSelectedValue()).getId();
+                Message privateMessage = new Message("PRIVATE_MESSAGE", content, currentUser.getId(), to);
+                Thread privateThread = new Thread(new WriteThread(ClientFrm.this, s, currentUser, privateMessage, writer));
+                privateThread.start();
+                txtMessage.setText("");
+
+                String url = ClientFrm.class.getClassLoader().getResource("img/sad.png").toString();
+
+                try {
+                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                            "<img src='"+ url + "'/><br/>");
+                } catch (BadLocationException | IOException badLocationException) {
+                    badLocationException.printStackTrace();
+                }
+                MessageStore.saveMessage(to, privateMessage);
+            }
+        });
+        btnShock.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String content = ":O";
+                String to = ((User) jListUsers.getSelectedValue()).getId();
+                Message privateMessage = new Message("PRIVATE_MESSAGE", content, currentUser.getId(), to);
+                Thread privateThread = new Thread(new WriteThread(ClientFrm.this, s, currentUser, privateMessage, writer));
+                privateThread.start();
+                txtMessage.setText("");
+
+                String url = ClientFrm.class.getClassLoader().getResource("img/shocked.png").toString();
+
+                try {
+                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                            "<img src='"+ url + "'/><br/>");
+                } catch (BadLocationException | IOException badLocationException) {
+                    badLocationException.printStackTrace();
+                }
+                MessageStore.saveMessage(to, privateMessage);
+            }
+        });
     }
 
     /*public void execute() {
@@ -149,7 +302,36 @@ public class ClientFrm extends JFrame {
     public void onPrivateMessage(Message msg) {
         MessageStore.saveMessage(msg.getFrom(), msg);
         if(((User) jListUsers.getSelectedValue()).getId().equals(msg.getFrom())) {
-            MessageArea.append((String) msg.getPayload() + "\n");
+            //MessageArea.append((String) msg.getPayload() + "\n");
+            try {
+                if(msg.getPayload().equals("(y)")) {
+                    String url = ClientFrm.class.getClassLoader().getResource("img/like.png").toString();
+                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                            "<img src='"+ url + "'/><br/>");
+                } else if(msg.getPayload().equals("^_^")) {
+                    String url = ClientFrm.class.getClassLoader().getResource("img/smile.png").toString();
+                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                            "<img src='"+ url + "'/><br/>");
+                } else if(msg.getPayload().equals(">:0")) {
+                    String url = ClientFrm.class.getClassLoader().getResource("img/happy.png").toString();
+                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                            "<img src='"+ url + "'/><br/>");
+                } else if(msg.getPayload().equals(":(")) {
+                    String url = ClientFrm.class.getClassLoader().getResource("img/sad.png").toString();
+                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                            "<img src='"+ url + "'/><br/>");
+                } else if(msg.getPayload().equals(":O")) {
+                    String url = ClientFrm.class.getClassLoader().getResource("img/shocked.png").toString();
+                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                            "<img src='"+ url + "'/><br/>");
+                }
+                else {
+                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()), "<strong>"+ (String) msg.getPayload() + "</strong><br/>");
+                }
+            }
+            catch (BadLocationException | IOException badLocationException) {
+                badLocationException.printStackTrace();
+            }
         }
     }
 }

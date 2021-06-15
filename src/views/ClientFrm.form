@@ -23,7 +23,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="5d8dd" class="javax.swing.JTextArea" binding="MessageArea">
+              <component id="702ed" class="javax.swing.JTextPane" binding="MessageArea">
                 <constraints/>
                 <properties>
                   <editable value="false"/>
@@ -67,35 +67,35 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="c5ae9" class="javax.swing.JButton" binding="button1" default-binding="true">
+              <component id="c5ae9" class="javax.swing.JButton" binding="btnLike">
                 <constraints/>
                 <properties>
-                  <icon value="img/happy.png"/>
+                  <icon value="img/like.png"/>
                   <text value=""/>
                 </properties>
               </component>
-              <component id="9969" class="javax.swing.JButton" binding="button2" default-binding="true">
+              <component id="9969" class="javax.swing.JButton" binding="btnSad">
                 <constraints/>
                 <properties>
                   <icon value="img/sad.png"/>
                   <text value=""/>
                 </properties>
               </component>
-              <component id="3c707" class="javax.swing.JButton" binding="button3" default-binding="true">
+              <component id="3c707" class="javax.swing.JButton" binding="btnSmile">
                 <constraints/>
                 <properties>
                   <icon value="img/smile.png"/>
                   <text value=""/>
                 </properties>
               </component>
-              <component id="f9fe4" class="javax.swing.JButton" binding="button4" default-binding="true">
+              <component id="f9fe4" class="javax.swing.JButton" binding="btnHappy">
                 <constraints/>
                 <properties>
-                  <icon value="img/wink.png"/>
+                  <icon value="img/happy.png"/>
                   <text value=""/>
                 </properties>
               </component>
-              <component id="90763" class="javax.swing.JButton" binding="button5" default-binding="true">
+              <component id="90763" class="javax.swing.JButton" binding="btnShock">
                 <constraints/>
                 <properties>
                   <icon value="img/shocked.png"/>
