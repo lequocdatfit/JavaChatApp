@@ -19,8 +19,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -316,7 +315,8 @@ public class ClientFrm extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 User selectedUser =  ((User) jListUsers.getSelectedValue());
-                SendFileFrm frm = new SendFileFrm(ClientFrm.this, socket, writer, selectedUser, currentUser, rootPaneCheckingEnabled);
+                SendFileFrm frm = new SendFileFrm(ClientFrm.this, socket, writer,
+                        selectedUser, currentUser, rootPaneCheckingEnabled);
                 frm.setVisible(true);
             }
         });
@@ -396,5 +396,48 @@ public class ClientFrm extends JFrame {
                 badLocationException.printStackTrace();
             }
         }
+    }
+
+    public void onPrivateFileMessage(ObjectInputStream in, User from) {
+        try {
+            int fileNameLength = in.readInt();
+            System.out.println(fileNameLength);
+            if(fileNameLength > 0) {
+                byte[] fileNameBytes = new byte[fileNameLength];
+                in.readFully(fileNameBytes, 0, fileNameBytes.length);
+                String fileName = new String(fileNameBytes);
+                System.out.println(fileName);
+                int fileContentLength = in.readInt();
+
+                if (fileContentLength > 0) {
+                    byte[] fileContentBytes = new byte[fileContentLength];
+                    in.readFully(fileContentBytes, 0, fileContentLength);
+
+                    int output = JOptionPane.showConfirmDialog(rootPanel, "Bạn nhận được một file từ: " + from.getName() + "\n" +
+                            "Tên file: " + fileName +"\n" +
+                            "Bạn có muốn lưu lại không?" , "Có file gửi đến", JOptionPane.YES_OPTION, JOptionPane.NO_OPTION);
+                    if(output == JOptionPane.YES_OPTION) {
+                        JFileChooser fileChooser = new JFileChooser();
+                        fileChooser.setDialogTitle("Chọn nơi bạn cần lưu");
+                        fileChooser.setSelectedFile(new File(fileName));
+                        int userSelection = fileChooser.showSaveDialog(rootPanel);
+                        if(userSelection == JFileChooser.APPROVE_OPTION) {
+                            File fileToDownLoad = fileChooser.getSelectedFile();
+                            try {
+                                FileOutputStream fileOutputStream = new FileOutputStream(fileToDownLoad);
+                                fileOutputStream.write(fileContentBytes);
+                                fileOutputStream.close();
+                                JOptionPane.showMessageDialog(rootPanel, "Lưu thành công!");
+                            } catch (IOException err) {
+                                err.printStackTrace();
+                            }
+                        }
+                    }
+                }
+            }
+        } catch(IOException err) {
+            err.printStackTrace();
+        }
+
     }
 }

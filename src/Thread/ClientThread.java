@@ -4,6 +4,7 @@ import DAO.DAO;
 import model.Client;
 import model.Message;
 import model.User;
+import model.myFile;
 import views.ServerFrm;
 
 import java.awt.*;
@@ -74,27 +75,14 @@ public class ClientThread implements Runnable{
                             byte[] fileContentBytes = new byte[fileContentLength];
                             in.readFully(fileContentBytes, 0, fileContentLength);
 
+                            // forward file to client
+                            String recipient = request.getTo();
+                            this.forwardPrivateMessage(recipient, request);
+
+                            this.forwardFileStreamToClient(recipient, fileNameBytes, fileContentBytes);
+
                         }
                     }
-                    /*DataInputStream dataInputStream = new DataInputStream(client.getInputStream());
-
-
-                    int fileNameLength = dataInputStream.readInt();
-                    System.out.println(fileNameLength);
-                    if(fileNameLength > 0) {
-                        byte[] fileNameBytes = new byte[fileNameLength];
-                        dataInputStream.readFully(fileNameBytes, 0, fileNameBytes.length);
-                        String fileName = new String(fileNameBytes);
-                        System.out.println(fileName);
-                        int fileContentLength = dataInputStream.readInt();
-
-                        if(fileContentLength > 0) {
-                            byte[] fileContentBytes = new byte[fileContentLength];
-                            dataInputStream.readFully(fileContentBytes, 0, fileContentLength);
-
-                        }
-                    } */
-
 
                 }
 
@@ -108,6 +96,15 @@ public class ClientThread implements Runnable{
             } catch (IOException exception) {
                 exception.printStackTrace();
             }
+        }
+    }
+
+    public static String getFileExtension(String fileName) {
+        int i = fileName.lastIndexOf(".");
+        if(i > 0) {
+            return fileName.substring(i + 1);
+        } else {
+            return "No extension found.";
         }
     }
 
@@ -125,6 +122,36 @@ public class ClientThread implements Runnable{
                 client.sendMessage(serverMessage);
             }
         }
+    }
+
+    public void forwardFileStreamToClient(String userId, byte[] fileNameBytes, byte[] fileContentBytes) {
+        for (ClientThread client : clients) {
+            if(client.getUser().getId().equals(userId)) {
+                ObjectOutputStream outStream = client.getObjectOutputStream();
+                Thread forwardFileThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            outStream.writeInt(fileNameBytes.length);
+                            outStream.flush();
+                            outStream.write(fileNameBytes);
+                            outStream.flush();
+                            outStream.writeInt(fileContentBytes.length);
+                            outStream.flush();
+                            outStream.write(fileContentBytes);
+                            outStream.flush();
+                        } catch (IOException exception) {
+                            exception.printStackTrace();
+                        }
+                    }
+                });
+                forwardFileThread.start();
+            }
+        }
+    }
+
+    public ObjectOutputStream getObjectOutputStream() {
+        return out;
     }
 
     public void sendMessage(Message serverMessage) {

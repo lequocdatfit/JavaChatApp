@@ -1,5 +1,6 @@
 package Thread;
 
+import DAO.DAO;
 import model.Message;
 import model.User;
 import views.ClientFrm;
@@ -46,6 +47,12 @@ public class ReadThread implements Runnable{
                     case "PRIVATE_MESSAGE" -> {
                         System.out.println("Has new message");
                         client.onPrivateMessage(response);
+                        break;
+                    }
+                    case "PRIVATE_FILE_MESSAGE" -> {
+                        System.out.println("Has new file");
+                        User from = new DAO().getUserById(response.getFrom());
+                        client.onPrivateFileMessage(reader, from);
                         break;
                     }
                 }

@@ -21,7 +21,8 @@ public class SendFileFrm extends JDialog {
 
     private File[] fileToSend = new File[1];
 
-    public SendFileFrm(Frame chatClient, Socket s, ObjectOutputStream writer, User selectedUser, User currentUser, boolean modal) {
+    public SendFileFrm(Frame chatClient, Socket s, ObjectOutputStream writer,
+                       User selectedUser, User currentUser, boolean modal) {
         super(chatClient, modal);
         setContentPane(contentPane);
         setModal(true);
@@ -62,8 +63,10 @@ public class SendFileFrm extends JDialog {
                         byte[] fileContentBytes = new byte[(int) fileToSend[0].length()];
                         fileInputStream.read(fileContentBytes);
 
-                        Message fileMessage = new Message("PRIVATE_FILE_MESSAGE", "file", currentUser.getId(), selectedUser.getId());
-                        Thread privateThread = new Thread(new WriteThread(clientFrm, s, currentUser, fileMessage, ((ClientFrm) chatClient).getObjectOutputStream()));
+                        Message fileMessage = new Message("PRIVATE_FILE_MESSAGE",
+                                "file", currentUser.getId(), selectedUser.getId());
+                        Thread privateThread = new Thread(new WriteThread(clientFrm, s,
+                                currentUser, fileMessage, ((ClientFrm) chatClient).getObjectOutputStream()));
                         privateThread.start();
 
 
