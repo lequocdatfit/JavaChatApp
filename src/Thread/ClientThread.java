@@ -58,6 +58,44 @@ public class ClientThread implements Runnable{
                     // forward the private message to the right recipient (and to the other tab of sender)
                     String recipient = request.getTo();
                     this.forwardPrivateMessage(recipient, request);
+                } else if(request.getType().equals("PRIVATE_FILE_MESSAGE")) {
+                    System.out.println("PRIVATE_FILE_MESSAGE");
+
+                    int fileNameLength = in.readInt();
+                    System.out.println(fileNameLength);
+                    if(fileNameLength > 0) {
+                        byte[] fileNameBytes = new byte[fileNameLength];
+                        in.readFully(fileNameBytes, 0, fileNameBytes.length);
+                        String fileName = new String(fileNameBytes);
+                        System.out.println(fileName);
+                        int fileContentLength = in.readInt();
+
+                        if(fileContentLength > 0) {
+                            byte[] fileContentBytes = new byte[fileContentLength];
+                            in.readFully(fileContentBytes, 0, fileContentLength);
+
+                        }
+                    }
+                    /*DataInputStream dataInputStream = new DataInputStream(client.getInputStream());
+
+
+                    int fileNameLength = dataInputStream.readInt();
+                    System.out.println(fileNameLength);
+                    if(fileNameLength > 0) {
+                        byte[] fileNameBytes = new byte[fileNameLength];
+                        dataInputStream.readFully(fileNameBytes, 0, fileNameBytes.length);
+                        String fileName = new String(fileNameBytes);
+                        System.out.println(fileName);
+                        int fileContentLength = dataInputStream.readInt();
+
+                        if(fileContentLength > 0) {
+                            byte[] fileContentBytes = new byte[fileContentLength];
+                            dataInputStream.readFully(fileContentBytes, 0, fileContentLength);
+
+                        }
+                    } */
+
+
                 }
 
             } while (true);

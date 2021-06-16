@@ -8,21 +8,17 @@ import model.MessageStore;
 import model.User;
 import model.UserRendered;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
+
 import javax.swing.text.html.HTMLDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -40,14 +36,19 @@ public class ClientFrm extends JFrame {
     private JButton btnHappy;
     private JButton btnShock;
     private JTextPane MessageArea;
+    private JButton fileButton;
     private HTMLDocument doc;
     private ServerListFrm serverList;
     private DefaultListModel<User> usersListModel;
 
-    private Socket s;
+    private Socket socket;
     private User currentUser;
     private ArrayList<User> listUser;
     private ObjectOutputStream writer;
+
+    public ObjectOutputStream getObjectOutputStream() {
+        return this.writer;
+    }
 
     public ClientFrm(Frame serverList, Socket s, User user) {
         super();
@@ -56,6 +57,8 @@ public class ClientFrm extends JFrame {
         setSize(800, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        this.socket = s;
         this.serverList = (ServerListFrm) serverList;
         currentUser = user;
         try {
@@ -65,7 +68,7 @@ public class ClientFrm extends JFrame {
         }
 
 
-        MessageArea.setContentType("text/html");
+        //MessageArea.setContentType("text/html");
 
         doc = (HTMLDocument) MessageArea.getStyledDocument();
 
@@ -82,8 +85,7 @@ public class ClientFrm extends JFrame {
         usersListModel = new DefaultListModel<>();
         jListUsers.setModel(usersListModel);
         jListUsers.setCellRenderer(new UserRendered());
-        // default select user;
-        jListUsers.setSelectedIndex(0);
+
 
         jListUsers.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -188,7 +190,6 @@ public class ClientFrm extends JFrame {
                     privateThread.start();
                     txtMessage.setText("");
 
-                    //System.out.println(content);
                     try {
                         doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
                                 "<div style='background-color: #05728F; margin: 0 0 10px 0;'><pre style='color: #fff'>"
@@ -196,6 +197,7 @@ public class ClientFrm extends JFrame {
                     } catch (BadLocationException | IOException badLocationException) {
                         badLocationException.printStackTrace();
                     }
+
                     MessageStore.saveMessage(to, privateMessage);
                 }
             }
@@ -264,6 +266,7 @@ public class ClientFrm extends JFrame {
                 } catch (BadLocationException | IOException badLocationException) {
                     badLocationException.printStackTrace();
                 }
+
                 MessageStore.saveMessage(to, privateMessage);
             }
         });
@@ -309,6 +312,14 @@ public class ClientFrm extends JFrame {
                 MessageStore.saveMessage(to, privateMessage);
             }
         });
+        fileButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                User selectedUser =  ((User) jListUsers.getSelectedValue());
+                SendFileFrm frm = new SendFileFrm(ClientFrm.this, socket, writer, selectedUser, currentUser, rootPaneCheckingEnabled);
+                frm.setVisible(true);
+            }
+        });
     }
 
     /*public void execute() {
@@ -324,6 +335,10 @@ public class ClientFrm extends JFrame {
         }
     }*/
 
+    public void setDefaultUserSelection() {
+        // default select user;
+        jListUsers.setSelectedIndex(0);
+    }
 
     public void updateListUsers(ArrayList<User> users) {
         listUser = users;

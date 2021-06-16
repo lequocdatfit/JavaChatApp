@@ -35,6 +35,7 @@ public class ReadThread implements Runnable{
                     case "FETCH_USERS" -> {
                         System.out.println(response.getType());
                         client.updateListUsers((ArrayList<User>) response.getPayload());
+                        client.setDefaultUserSelection();
                         break;
                     }
                     case "USER_CONN" -> {
