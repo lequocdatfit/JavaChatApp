@@ -88,7 +88,9 @@
             <children>
               <component id="f5ae8" class="javax.swing.JTextArea" binding="txtServerLog">
                 <constraints/>
-                <properties/>
+                <properties>
+                  <editable value="false"/>
+                </properties>
               </component>
             </children>
           </scrollpane>

@@ -1,10 +1,8 @@
 package Thread;
 
-import DAO.DAO;
 import model.Client;
 import model.Message;
 import model.User;
-import model.myFile;
 import views.ServerFrm;
 
 import java.awt.*;
@@ -28,6 +26,14 @@ public class ClientThread implements Runnable{
         serverFrm = (ServerFrm) server;
         in = new ObjectInputStream(new BufferedInputStream(client.getInputStream()));
         out = new ObjectOutputStream(new BufferedOutputStream(client.getOutputStream()));
+    }
+
+    public Socket getClient() {
+        return client;
+    }
+
+    public void setClient(Socket client) {
+        this.client = client;
     }
 
     @Override
@@ -110,6 +116,7 @@ public class ClientThread implements Runnable{
             }
         }
     }
+
 
     public void removeClientThread() {
         Iterator<ClientThread> i = clients.iterator();

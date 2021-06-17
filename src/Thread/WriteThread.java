@@ -4,11 +4,9 @@ import model.Message;
 import model.User;
 import views.ClientFrm;
 
-import java.awt.*;
-import java.io.BufferedOutputStream;
+
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 
 public class WriteThread implements Runnable{

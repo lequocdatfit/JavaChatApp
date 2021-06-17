@@ -2,13 +2,11 @@ package views;
 
 import model.Message;
 import model.User;
-import Thread.WriteThread;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
 public class SendFileFrm extends JDialog {
     private JPanel contentPane;
@@ -61,23 +59,29 @@ public class SendFileFrm extends JDialog {
                         byte[] fileContentBytes = new byte[(int) fileToSend[0].length()];
                         fileInputStream.read(fileContentBytes);
                         fileInputStream.close();
+
+                        System.out.println("Đang bấm gửi: " + fileName);
+
                         Message fileMessage = new Message("PRIVATE_FILE_MESSAGE",
                                 "file", currentUser.getId(), selectedUser.getId());
-                        Thread privateThread = new Thread(new WriteThread(clientFrm, s,
-                                currentUser, fileMessage, ((ClientFrm) chatClient).getObjectOutputStream()));
-                        privateThread.start();
 
 
                         Thread sendFile = new Thread(new Runnable() {
                             @Override
                             public void run() {
                                 try {
+                                    writer.writeObject(fileMessage);
+                                    if(fileMessage.getType().equals("PRIVATE_MESSAGE")) {
+                                        System.out.println("sending private");
+                                    }
+                                    writer.flush();
+
                                     writer.writeInt(fileNameBytes.length);
-
+                                    writer.flush();
                                     writer.write(fileNameBytes);
-
+                                    writer.flush();
                                     writer.writeInt(fileContentBytes.length);
-
+                                    writer.flush();
                                     writer.write(fileContentBytes);
                                     writer.flush();
                                 } catch (IOException exception) {

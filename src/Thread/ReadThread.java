@@ -5,9 +5,7 @@ import model.Message;
 import model.User;
 import views.ClientFrm;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.ArrayList;

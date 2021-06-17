@@ -113,6 +113,9 @@ public class ServerFrm extends JFrame{
 
     public void stopServer() {
         try {
+            for (ClientThread cl : clients) {
+                cl.getClient().close();
+            }
             serverThread.stop();
             s.close();
             txtServerLog.append("Server stopped.\n");
