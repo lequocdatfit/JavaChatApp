@@ -15,8 +15,6 @@ public class SendFileFrm extends JDialog {
     private JButton btnSendFile;
     private JButton btnChooseFile;
     private JLabel jlFileName;
-    private JButton buttonOK;
-    private JButton buttonCancel;
     private ClientFrm clientFrm;
 
     private File[] fileToSend = new File[1];
@@ -26,7 +24,7 @@ public class SendFileFrm extends JDialog {
         super(chatClient, modal);
         setContentPane(contentPane);
         setModal(true);
-        getRootPane().setDefaultButton(buttonOK);
+        getRootPane().setDefaultButton(btnSendFile);
         this.setSize(450, 450);
         this.setLocationRelativeTo(chatClient);
         clientFrm = (ClientFrm) chatClient;
@@ -62,7 +60,7 @@ public class SendFileFrm extends JDialog {
 
                         byte[] fileContentBytes = new byte[(int) fileToSend[0].length()];
                         fileInputStream.read(fileContentBytes);
-
+                        fileInputStream.close();
                         Message fileMessage = new Message("PRIVATE_FILE_MESSAGE",
                                 "file", currentUser.getId(), selectedUser.getId());
                         Thread privateThread = new Thread(new WriteThread(clientFrm, s,
@@ -75,11 +73,11 @@ public class SendFileFrm extends JDialog {
                             public void run() {
                                 try {
                                     writer.writeInt(fileNameBytes.length);
-                                    writer.flush();
+
                                     writer.write(fileNameBytes);
-                                    writer.flush();
+
                                     writer.writeInt(fileContentBytes.length);
-                                    writer.flush();
+
                                     writer.write(fileContentBytes);
                                     writer.flush();
                                 } catch (IOException exception) {
@@ -88,6 +86,7 @@ public class SendFileFrm extends JDialog {
                             }
                         });
                         sendFile.start();
+                        dispose();
                     } catch (IOException err) {
                         err.printStackTrace();
                     }

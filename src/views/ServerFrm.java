@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -128,8 +129,20 @@ public class ServerFrm extends JFrame{
                 i + 1, cl.getIpAddress(), cl.getPort(), cl.getUsername()
             });
         }
-
     }
+
+    public void onUserDisconnect(User currentUser) {
+        Iterator<Client> itr = listClient.iterator();
+        while (itr.hasNext()) {
+            Client cl = itr.next();
+            if(cl.getUserId().equals(currentUser.getId())) {
+                itr.remove();
+            }
+        }
+        updateClientTable();
+    }
+
+
 
     public void addNewClient(Client client) {
         listClient.add(client);

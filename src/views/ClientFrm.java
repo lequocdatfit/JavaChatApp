@@ -15,13 +15,11 @@ import javax.swing.text.BadLocationException;
 
 import javax.swing.text.html.HTMLDocument;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
+import java.awt.event.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class ClientFrm extends JFrame {
     private JPanel rootPanel;
@@ -36,14 +34,24 @@ public class ClientFrm extends JFrame {
     private JButton btnShock;
     private JTextPane MessageArea;
     private JButton fileButton;
+    private JButton btnSetting;
     private HTMLDocument doc;
     private ServerListFrm serverList;
     private DefaultListModel<User> usersListModel;
+    private boolean lineBreak = false;
 
     private Socket socket;
     private User currentUser;
     private ArrayList<User> listUser;
     private ObjectOutputStream writer;
+
+    public boolean isLineBreak() {
+        return lineBreak;
+    }
+
+    public void setLineBreak(boolean lineBreak) {
+        this.lineBreak = lineBreak;
+    }
 
     public ObjectOutputStream getObjectOutputStream() {
         return this.writer;
@@ -66,6 +74,15 @@ public class ClientFrm extends JFrame {
             exception.printStackTrace();
         }
 
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                Message disConnect = new Message("USER_DISCONNECT", ClientFrm.this.currentUser);
+                Thread privateThread = new Thread(new WriteThread(ClientFrm.this, s, currentUser, disConnect, writer));
+                privateThread.start();
+                System.out.println("Close");
+            }
+        });
 
         //MessageArea.setContentType("text/html");
 
@@ -93,79 +110,81 @@ public class ClientFrm extends JFrame {
                 MessageArea.setText("<br/>");
                 // find message for selected user
                 User selectedUser = ((User) jListUsers.getSelectedValue());
-                String selectedUserId = selectedUser.getId();
-                Message[] listMessages = MessageStore.findMessageForUser(selectedUserId);
-                if(listMessages != null) {
-                    for (Message msg: listMessages) {
-                        //MessageArea.append((String) msg.getPayload() + "\n");
+                if(selectedUser != null) {
+                    String selectedUserId = selectedUser.getId();
+                    Message[] listMessages = MessageStore.findMessageForUser(selectedUserId);
+                    if(listMessages != null) {
+                        for (Message msg: listMessages) {
+                            //MessageArea.append((String) msg.getPayload() + "\n");
                         /*try {
                             doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()), "<strong>"+ (String) msg.getPayload() + "</strong>");
                         } catch (BadLocationException | IOException badLocationException) {
                             badLocationException.printStackTrace();
                         }*/
-                        if(selectedUserId.equals(msg.getFrom())) {
-                            try {
-                                if(msg.getPayload().equals("(y)")) {
-                                    String url = ClientFrm.class.getClassLoader().getResource("img/like.png").toString();
-                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                            "<div><pre>" + "<span style='color: red;'>" + selectedUser.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
-                                } else if(msg.getPayload().equals("^_^")) {
-                                    String url = ClientFrm.class.getClassLoader().getResource("img/smile.png").toString();
-                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                            "<div><pre>" + "<span style='color: red;'>" + selectedUser.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
-                                } else if(msg.getPayload().equals(">:0")) {
-                                    String url = ClientFrm.class.getClassLoader().getResource("img/happy.png").toString();
-                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                            "<div><pre>" + "<span style='color: red;'>" + selectedUser.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
-                                } else if(msg.getPayload().equals(":(")) {
-                                    String url = ClientFrm.class.getClassLoader().getResource("img/sad.png").toString();
-                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                            "<div><pre>" + "<span style='color: red;'>" + selectedUser.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
-                                } else if(msg.getPayload().equals(":O")) {
-                                    String url = ClientFrm.class.getClassLoader().getResource("img/shocked.png").toString();
-                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                            "<div><pre>" + "<span style='color: red;'>" + selectedUser.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                            if(selectedUserId.equals(msg.getFrom())) {
+                                try {
+                                    if(msg.getPayload().equals("(y)")) {
+                                        String url = ClientFrm.class.getClassLoader().getResource("img/like.png").toString();
+                                        doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                                "<div><pre>" + "<span style='color: red;'>" + selectedUser.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                    } else if(msg.getPayload().equals("^_^")) {
+                                        String url = ClientFrm.class.getClassLoader().getResource("img/smile.png").toString();
+                                        doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                                "<div><pre>" + "<span style='color: red;'>" + selectedUser.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                    } else if(msg.getPayload().equals(">:0")) {
+                                        String url = ClientFrm.class.getClassLoader().getResource("img/happy.png").toString();
+                                        doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                                "<div><pre>" + "<span style='color: red;'>" + selectedUser.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                    } else if(msg.getPayload().equals(":(")) {
+                                        String url = ClientFrm.class.getClassLoader().getResource("img/sad.png").toString();
+                                        doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                                "<div><pre>" + "<span style='color: red;'>" + selectedUser.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                    } else if(msg.getPayload().equals(":O")) {
+                                        String url = ClientFrm.class.getClassLoader().getResource("img/shocked.png").toString();
+                                        doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                                "<div><pre>" + "<span style='color: red;'>" + selectedUser.getName() +": </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                    }
+                                    else {
+                                        doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                                "<div style='background-color: #ebebeb; margin: 0 0 10px 0;'><pre style='color: #000;'>"
+                                                        + "<span style='color: red;'>" + selectedUser.getName() + ": </span>" + (String) msg.getPayload() + "</pre></div><br/>");
+                                    }
                                 }
-                                else {
-                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                            "<div style='background-color: #ebebeb; margin: 0 0 10px 0;'><pre style='color: #000;'>"
-                                                    + "<span style='color: red;'>" + selectedUser.getName() + ": </span>" + (String) msg.getPayload() + "</pre></div><br/>");
+                                catch (BadLocationException | IOException badLocationException) {
+                                    badLocationException.printStackTrace();
                                 }
-                            }
-                            catch (BadLocationException | IOException badLocationException) {
-                                badLocationException.printStackTrace();
-                            }
-                        } else {
-                            try {
-                                if(msg.getPayload().equals("(y)")) {
-                                    String url = ClientFrm.class.getClassLoader().getResource("img/like.png").toString();
-                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                            "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
-                                } else if(msg.getPayload().equals("^_^")) {
-                                    String url = ClientFrm.class.getClassLoader().getResource("img/smile.png").toString();
-                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                            "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
-                                } else if(msg.getPayload().equals(">:0")) {
-                                    String url = ClientFrm.class.getClassLoader().getResource("img/happy.png").toString();
-                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                            "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
-                                } else if(msg.getPayload().equals(":(")) {
-                                    String url = ClientFrm.class.getClassLoader().getResource("img/sad.png").toString();
-                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                            "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
-                                } else if(msg.getPayload().equals(":O")) {
-                                    String url = ClientFrm.class.getClassLoader().getResource("img/shocked.png").toString();
-                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                            "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                            } else {
+                                try {
+                                    if(msg.getPayload().equals("(y)")) {
+                                        String url = ClientFrm.class.getClassLoader().getResource("img/like.png").toString();
+                                        doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                                "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                    } else if(msg.getPayload().equals("^_^")) {
+                                        String url = ClientFrm.class.getClassLoader().getResource("img/smile.png").toString();
+                                        doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                                "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                    } else if(msg.getPayload().equals(">:0")) {
+                                        String url = ClientFrm.class.getClassLoader().getResource("img/happy.png").toString();
+                                        doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                                "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                    } else if(msg.getPayload().equals(":(")) {
+                                        String url = ClientFrm.class.getClassLoader().getResource("img/sad.png").toString();
+                                        doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                                "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                    } else if(msg.getPayload().equals(":O")) {
+                                        String url = ClientFrm.class.getClassLoader().getResource("img/shocked.png").toString();
+                                        doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                                "<div><pre>" + "<span style='color: #000;'>you: </span>" +"<img src='"+ url + "'/></pre></div><br/>");
+                                    }
+                                    else {
+                                        doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                                "<div style='background-color: #05728F; margin: 0 0 10px 0;'><pre style='color: #fff'>"
+                                                        + "<span style='color: yellow;'>you: </span>" + (String) msg.getPayload() + "</pre></div><br/>");
+                                    }
                                 }
-                                else {
-                                    doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
-                                            "<div style='background-color: #05728F; margin: 0 0 10px 0;'><pre style='color: #fff'>"
-                                                    + "<span style='color: yellow;'>you: </span>" + (String) msg.getPayload() + "</pre></div><br/>");
+                                catch (BadLocationException | IOException badLocationException) {
+                                    badLocationException.printStackTrace();
                                 }
-                            }
-                            catch (BadLocationException | IOException badLocationException) {
-                                badLocationException.printStackTrace();
                             }
                         }
                     }
@@ -320,6 +339,48 @@ public class ClientFrm extends JFrame {
                 frm.setVisible(true);
             }
         });
+        btnSetting.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SettingFrm frm = new SettingFrm(ClientFrm.this, rootPaneCheckingEnabled);
+                frm.setVisible(true);
+            }
+        });
+
+        txtMessage.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_ENTER && !lineBreak) {
+                    e.consume();
+                    String content = txtMessage.getText();
+                    if(!content.equals("")) {
+                        String to = ((User) jListUsers.getSelectedValue()).getId();
+                        Message privateMessage = new Message("PRIVATE_MESSAGE", content, currentUser.getId(), to);
+                        Thread privateThread = new Thread(new WriteThread(ClientFrm.this, s, currentUser, privateMessage, writer));
+                        privateThread.start();
+                        txtMessage.setText("");
+
+                        try {
+                            doc.insertAfterEnd(doc.getCharacterElement(doc.getLength()),
+                                    "<div style='background-color: #05728F; margin: 0 0 10px 0;'><pre style='color: #fff'>"
+                                            + "<span style='color: yellow;'>you: </span>" + content + "</pre></div><br/>");
+                        } catch (BadLocationException | IOException badLocationException) {
+                            badLocationException.printStackTrace();
+                        }
+
+                        MessageStore.saveMessage(to, privateMessage);
+                    }
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+            }
+        });
     }
 
     /*public void execute() {
@@ -357,6 +418,25 @@ public class ClientFrm extends JFrame {
         u.setConnected(true);
         listUser.add(u);
         usersListModel.addElement(u);
+    }
+
+    public void setUserOffLine(User u) {
+        u.setConnected(false);
+        Iterator<User> itr = listUser.iterator();
+        while (itr.hasNext()) {
+            User user = itr.next();
+            if(user.getId().equals(u.getId())) {
+                itr.remove();
+            }
+        }
+        User selectedUser = (User) jListUsers.getSelectedValue();
+        if(selectedUser.getId().equals(u.getId())) {
+            JOptionPane.showMessageDialog(rootPanel, selectedUser.getName() + " đã thoát!");
+            usersListModel.remove(jListUsers.getSelectedIndex());
+            jListUsers.setSelectedIndex(0);
+        } else {
+            usersListModel.removeElement(u);
+        }
     }
 
     public void onPrivateMessage(Message msg) {

@@ -12,6 +12,7 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class ClientThread implements Runnable{
     private Socket client;
@@ -38,10 +39,10 @@ public class ClientThread implements Runnable{
                 if(request.getType().equals("SESSION")) {
                     // get user
                     currentUser = (User) request.getPayload();
-                    serverFrm.ServerLogAppend(currentUser.getId());
+                    serverFrm.ServerLogAppend("A user with id: " + currentUser.getId() + " connected.\n");
 
                     String address = ((InetSocketAddress) client.getRemoteSocketAddress()).getAddress().toString();
-                    Client cl = new Client(address, this.client.getPort(), currentUser.getName());
+                    Client cl = new Client(address, this.client.getPort(), currentUser.getName(), currentUser.getId());
                     serverFrm.addNewClient(cl);
                     serverFrm.updateClientTable();
 
@@ -54,7 +55,7 @@ public class ClientThread implements Runnable{
                     // emit event fetchUsers
                     Message emitFetchUsers = new Message("FETCH_USERS", list_users);
                     this.sendMessage(emitFetchUsers);
-                    serverFrm.ServerLogAppend("Fetch_user\n");
+                    //serverFrm.ServerLogAppend("Fetch_user\n");
                 } else if(request.getType().equals("PRIVATE_MESSAGE")) {
                     // forward the private message to the right recipient (and to the other tab of sender)
                     String recipient = request.getTo();
@@ -84,6 +85,17 @@ public class ClientThread implements Runnable{
                         }
                     }
 
+                } else if(request.getType().equals("USER_DISCONNECT")) {
+                    // notify user disconnected to all user
+                    serverFrm.ServerLogAppend("A user with id: " + currentUser.getId() + " disconnected\n");
+                    this.broadcastAllExcludeCurrentSocket(request);
+
+                    serverFrm.onUserDisconnect((User) request.getPayload());
+
+                    // remove this client
+                    removeClientThread();
+                    // close this socket
+                    client.close();
                 }
 
             } while (true);
@@ -95,6 +107,16 @@ public class ClientThread implements Runnable{
                 out.close();
             } catch (IOException exception) {
                 exception.printStackTrace();
+            }
+        }
+    }
+
+    public void removeClientThread() {
+        Iterator<ClientThread> i = clients.iterator();
+        while (i.hasNext()) {
+            ClientThread ct = i.next();
+            if(ct == this) {
+                i.remove();
             }
         }
     }
@@ -133,11 +155,11 @@ public class ClientThread implements Runnable{
                     public void run() {
                         try {
                             outStream.writeInt(fileNameBytes.length);
-                            outStream.flush();
+
                             outStream.write(fileNameBytes);
-                            outStream.flush();
+
                             outStream.writeInt(fileContentBytes.length);
-                            outStream.flush();
+
                             outStream.write(fileContentBytes);
                             outStream.flush();
                         } catch (IOException exception) {
@@ -146,6 +168,7 @@ public class ClientThread implements Runnable{
                     }
                 });
                 forwardFileThread.start();
+                break;
             }
         }
     }

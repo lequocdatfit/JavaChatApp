@@ -55,6 +55,11 @@ public class ReadThread implements Runnable{
                         client.onPrivateFileMessage(reader, from);
                         break;
                     }
+                    case "USER_DISCONNECT" -> {
+                        System.out.println("A user disconnected");
+                        client.setUserOffLine((User) response.getPayload());
+                        break;
+                    }
                 }
             } catch (IOException | ClassNotFoundException exception) {
                 exception.printStackTrace();
