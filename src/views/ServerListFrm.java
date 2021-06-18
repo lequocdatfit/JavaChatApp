@@ -77,7 +77,7 @@ public class ServerListFrm extends JFrame {
                 try {
                     s = new Socket(server.getHostName(), server.getPort());
                     JOptionPane.showMessageDialog(rootPanel, "Đã kết nối!");
-                    ClientFrm frm = new ClientFrm(ServerListFrm.this, s, currentUser);
+                    ClientFrm frm = new ClientFrm(ServerListFrm.this, s, server, currentUser);
                     frm.setVisible(true);
                     setVisible(false);
                 } catch (IOException exception) {

@@ -3,10 +3,7 @@ package views;
 import DAO.DAO;
 import Thread.WriteThread;
 import Thread.ReadThread;
-import model.Message;
-import model.MessageStore;
-import model.User;
-import model.UserRendered;
+import model.*;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -37,6 +34,7 @@ public class ClientFrm extends JFrame {
     private JButton btnSetting;
     private JPanel topPanel;
     private JPanel inputPanel;
+    private JLabel txtServerDetail;
     private HTMLDocument doc;
     private ServerListFrm serverList;
     private DefaultListModel<User> usersListModel;
@@ -60,7 +58,7 @@ public class ClientFrm extends JFrame {
         return this.writer;
     }
 
-    public ClientFrm(Frame serverList, Socket s, User user) {
+    public ClientFrm(Frame serverList, Socket s, ServerDetail svdel, User user) {
         super();
         setTitle("Bạn đã đăng nhập với tên: " + user.getName());
         setContentPane(rootPanel);
@@ -71,6 +69,7 @@ public class ClientFrm extends JFrame {
         this.socket = s;
         this.serverList = (ServerListFrm) serverList;
         currentUser = user;
+        txtServerDetail.setText("Hostname: " + svdel.getHostName() + "\nPort: " + svdel.getPort());
         btnSend.setPreferredSize(new Dimension(50, 40));
         txtMessage.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 5));
         txtMessage.setMargin(new Insets(10, 10, 10, 10));
