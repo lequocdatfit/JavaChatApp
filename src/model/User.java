@@ -8,6 +8,7 @@ public class User implements Serializable {
     private String name;
     private String password;
     private Boolean isConnected;
+    private Boolean hasNewMessage = false;
 
     public User(String id, String nameLogin, String name, String password) {
         this.id = id;
@@ -20,6 +21,14 @@ public class User implements Serializable {
         this.nameLogin = nameLogin;
         this.name = name;
         this.password = password;
+    }
+
+    public Boolean getHasNewMessage() {
+        return hasNewMessage;
+    }
+
+    public void setHasNewMessage(Boolean hasNewMessage) {
+        this.hasNewMessage = hasNewMessage;
     }
 
     public Boolean getConnected() {

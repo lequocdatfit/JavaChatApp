@@ -35,10 +35,13 @@ public class ClientFrm extends JFrame {
     private JTextPane MessageArea;
     private JButton fileButton;
     private JButton btnSetting;
+    private JPanel topPanel;
+    private JPanel inputPanel;
     private HTMLDocument doc;
     private ServerListFrm serverList;
     private DefaultListModel<User> usersListModel;
     private boolean lineBreak = false;
+    private JScrollBar sb = scrollPanelMsg.getVerticalScrollBar();
 
     private Socket socket;
     private User currentUser;
@@ -59,15 +62,42 @@ public class ClientFrm extends JFrame {
 
     public ClientFrm(Frame serverList, Socket s, User user) {
         super();
-        setTitle("Chat app");
+        setTitle("Bạn đã đăng nhập với tên: " + user.getName());
         setContentPane(rootPanel);
-        setSize(800, 600);
+        setSize(900, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         this.socket = s;
         this.serverList = (ServerListFrm) serverList;
         currentUser = user;
+        btnSend.setPreferredSize(new Dimension(50, 40));
+        txtMessage.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 5));
+        txtMessage.setMargin(new Insets(10, 10, 10, 10));
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(2, 0, 5, 3));
+
+        topPanel.setLayout(new BorderLayout(10, 10));
+        topPanel.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
+        JPanel userPanel = new JPanel(new GridLayout(0, 1));
+        JLabel lbName = new JLabel();
+        JLabel status = new JLabel();
+        JLabel icon = new JLabel();
+        ImageIcon imageIcon = new ImageIcon(new ImageIcon(getClass().getResource("/img/user-profile.png"))
+                .getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT));
+        icon.setIcon(imageIcon);
+        status.setForeground(Color.GREEN);
+        lbName.setOpaque(true);
+        status.setOpaque(true);
+        icon.setOpaque(true);
+        userPanel.add(lbName);
+        userPanel.add(status);
+        topPanel.add(userPanel, BorderLayout.CENTER);
+        topPanel.add(icon, BorderLayout.WEST);
+        /*lbName.setBackground(Color.white);
+        status.setBackground(Color.white);
+        icon.setBackground(Color.white);
+        topPanel.setBackground(Color.white);*/
+
         try {
             writer = new ObjectOutputStream(s.getOutputStream());
         } catch (IOException exception) {
@@ -84,33 +114,34 @@ public class ClientFrm extends JFrame {
             }
         });
 
-        //MessageArea.setContentType("text/html");
 
         doc = (HTMLDocument) MessageArea.getStyledDocument();
 
-        txtMessage.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 5));
-        txtMessage.setMargin(new Insets(10, 10, 10, 10));
-
-
-        scrollPanelMsg.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
-            }
-        });
 
         usersListModel = new DefaultListModel<>();
         jListUsers.setModel(usersListModel);
-        jListUsers.setCellRenderer(new UserRendered());
+        jListUsers.setCellRenderer(new UserRendered(currentUser));
 
 
         jListUsers.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 System.out.println("state change!");
+
                 MessageArea.setText("<br/>");
                 // find message for selected user
                 User selectedUser = ((User) jListUsers.getSelectedValue());
+
                 if(selectedUser != null) {
+                    lbName.setText(selectedUser.getName());
+                    status.setText("Online");
+
+                    if(selectedUser.getHasNewMessage() == true) {
+                        selectedUser.setHasNewMessage(false);
+                        updateUserList();
+                        return;
+                    }
+
                     String selectedUserId = selectedUser.getId();
                     Message[] listMessages = MessageStore.findMessageForUser(selectedUserId);
                     if(listMessages != null) {
@@ -187,6 +218,8 @@ public class ClientFrm extends JFrame {
                                 }
                             }
                         }
+                        validate();
+                        sb.setValue( sb.getMaximum() );
                     }
                 }
             }
@@ -217,6 +250,10 @@ public class ClientFrm extends JFrame {
                     }
 
                     MessageStore.saveMessage(to, privateMessage);
+                    //validate();
+                    //sb.setValue( sb.getMaximum() );
+                    MessageArea.setCaretPosition(MessageArea.getDocument().getLength());
+
                 }
             }
         });
@@ -242,7 +279,8 @@ public class ClientFrm extends JFrame {
                     badLocationException.printStackTrace();
                 }
                 MessageStore.saveMessage(to, privateMessage);
-
+                validate();
+                sb.setValue( sb.getMaximum() );
             }
         });
         btnSmile.addActionListener(new ActionListener() {
@@ -264,6 +302,8 @@ public class ClientFrm extends JFrame {
                     badLocationException.printStackTrace();
                 }
                 MessageStore.saveMessage(to, privateMessage);
+                validate();
+                sb.setValue( sb.getMaximum() );
             }
         });
         btnHappy.addActionListener(new ActionListener() {
@@ -286,6 +326,8 @@ public class ClientFrm extends JFrame {
                 }
 
                 MessageStore.saveMessage(to, privateMessage);
+                validate();
+                sb.setValue( sb.getMaximum() );
             }
         });
         btnSad.addActionListener(new ActionListener() {
@@ -307,6 +349,8 @@ public class ClientFrm extends JFrame {
                     badLocationException.printStackTrace();
                 }
                 MessageStore.saveMessage(to, privateMessage);
+                validate();
+                sb.setValue( sb.getMaximum() );
             }
         });
         btnShock.addActionListener(new ActionListener() {
@@ -328,6 +372,8 @@ public class ClientFrm extends JFrame {
                     badLocationException.printStackTrace();
                 }
                 MessageStore.saveMessage(to, privateMessage);
+                validate();
+                sb.setValue( sb.getMaximum() );
             }
         });
         fileButton.addActionListener(new ActionListener() {
@@ -373,6 +419,8 @@ public class ClientFrm extends JFrame {
                         }
 
                         MessageStore.saveMessage(to, privateMessage);
+                        validate();
+                        sb.setValue( sb.getMaximum() );
                     }
                 }
             }
@@ -383,18 +431,6 @@ public class ClientFrm extends JFrame {
         });
     }
 
-    /*public void execute() {
-        try {
-            s = new Socket("localhost", 3000);
-            System.out.println("Connected to server");
-            Thread readThread = new Thread(new ReadThread(this, s));
-            readThread.start();
-            Thread writeThread = new Thread(new WriteThread(this, s, currentUser, ));
-            writeThread.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
 
     public void setDefaultUserSelection() {
         // default select user;
@@ -403,6 +439,14 @@ public class ClientFrm extends JFrame {
 
     public void updateListUsers(ArrayList<User> users) {
         listUser = users;
+        //// put current user on the top
+        for (int i=0; i<listUser.size(); i++) {
+            User us = listUser.get(i);
+            if(us.getId().equals(currentUser.getId())) {
+                listUser.set(i, listUser.get(0));
+                listUser.set(0, us);
+            }
+        }
 
         for (User u : listUser) {
             usersListModel.addElement(u);
@@ -410,11 +454,6 @@ public class ClientFrm extends JFrame {
     }
 
     public void setUserOnline(User u) {
-        /*for (User user : listUser) {
-            if(user.getId().equals(u.getId())) {
-                user.setConnected(true);
-            }
-        }*/
         u.setConnected(true);
         listUser.add(u);
         usersListModel.addElement(u);
@@ -441,9 +480,10 @@ public class ClientFrm extends JFrame {
 
     public void onPrivateMessage(Message msg) {
         MessageStore.saveMessage(msg.getFrom(), msg);
-        if(((User) jListUsers.getSelectedValue()).getId().equals(msg.getFrom())) {
+        User selectedUser = (User) jListUsers.getSelectedValue();
+        User from = new DAO().getUserById(msg.getFrom());
+        if(selectedUser.getId().equals(msg.getFrom())) {
             //MessageArea.append((String) msg.getPayload() + "\n");
-            User from = new DAO().getUserById(msg.getFrom());
             try {
                 if(msg.getPayload().equals("(y)")) {
                     String url = ClientFrm.class.getClassLoader().getResource("img/like.png").toString();
@@ -471,12 +511,46 @@ public class ClientFrm extends JFrame {
                             "<div style='background-color: #ebebeb; margin: 0 0 10px 0;'><pre style='color: #000;'>"
                                + "<span style='color: red;'>" + from.getName() + ": </span>" + (String) msg.getPayload() + "</pre></div><br/>");
                 }
+                //validate();
+                //sb.setValue( sb.getMaximum() );
+                MessageArea.setCaretPosition(MessageArea.getDocument().getLength());
             }
             catch (BadLocationException | IOException badLocationException) {
                 badLocationException.printStackTrace();
             }
+        } else {
+
+            for (User u : listUser) {
+                if(u.getId().equals(from.getId())) {
+                    u.setHasNewMessage(true);
+                }
+            }
+            updateUserList();
         }
     }
+
+    public void updateUserList() {
+        int selectedIndex = jListUsers.getSelectedIndex();
+        usersListModel = new DefaultListModel<>();
+        jListUsers.setModel(usersListModel);
+        jListUsers.setCellRenderer(new UserRendered(currentUser));
+
+        usersListModel.removeAllElements();
+        //// put current user on the top
+        for (int i=0; i<listUser.size(); i++) {
+            User us = listUser.get(i);
+            if(us.getId().equals(currentUser.getId())) {
+                listUser.set(i, listUser.get(0));
+                listUser.set(0, us);
+            }
+        }
+
+        for (User u : listUser) {
+            usersListModel.addElement(u);
+        }
+        jListUsers.setSelectedIndex(selectedIndex);
+    }
+
 
     public void onPrivateFileMessage(ObjectInputStream in, User from) {
         try {
@@ -520,4 +594,6 @@ public class ClientFrm extends JFrame {
         }
 
     }
+
+
 }

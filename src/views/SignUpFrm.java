@@ -22,7 +22,7 @@ public class SignUpFrm extends JFrame{
         super();
         this.setTitle("Đăng ký");
         this.setContentPane(rootPanel);
-        pack();
+        setSize(400, 300);
         this.setLocationRelativeTo(null);
         loginFrm = (LoginFrm) login;
         btnSignUp.addActionListener(new ActionListener() {

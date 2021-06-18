@@ -24,7 +24,7 @@ public class SettingFrm extends JDialog {
         if(clientFrm.isLineBreak()) {
             lineBreakRadio.setSelected(true);
         } else {
-            lineBreakRadio.setSelected(false);
+            sendMsgRadio.setSelected(true);
         }
 
         buttonOK.addActionListener(new ActionListener() {

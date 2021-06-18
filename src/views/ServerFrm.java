@@ -26,6 +26,7 @@ public class ServerFrm extends JFrame{
     private JPanel rootPanel;
     private JScrollPane scrollPanel;
     private JTable tblClient;
+    private JScrollBar sb;
     private DefaultTableModel clientModel;
     private ServerSocket s;
     private List<Client> listClient;
@@ -34,7 +35,7 @@ public class ServerFrm extends JFrame{
     Thread serverThread;
 
     private ArrayList<ClientThread> clients = new ArrayList<>();
-    private static ExecutorService pool = Executors.newFixedThreadPool(4);
+    private static ExecutorService pool = Executors.newFixedThreadPool(100);
     private ArrayList<User> users = new ArrayList<>();
 
     public ServerFrm() {
@@ -52,12 +53,9 @@ public class ServerFrm extends JFrame{
         });
         tblClient.setModel(clientModel);
 
+        sb = scrollPanel.getVerticalScrollBar();
 
-        scrollPanel.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                e.getAdjustable().setValue(e.getAdjustable().getMaximum());
-            }
-        });
+
         btnStartServer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -67,6 +65,8 @@ public class ServerFrm extends JFrame{
                     isStarting = false;
                     txtPort.setEditable(true);
                     btnStartServer.setText("Start server");
+                    validate();
+                    sb.setValue( sb.getMaximum() );
                     clearClientTable();
                     return;
                 }
@@ -75,6 +75,8 @@ public class ServerFrm extends JFrame{
                     startServer();
                     isStarting = true;
                     btnStartServer.setText("Stop");
+                    validate();
+                    sb.setValue( sb.getMaximum() );
                     txtPort.setEditable(false);
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
@@ -97,8 +99,12 @@ public class ServerFrm extends JFrame{
                     txtServerLog.append("Server listening on port " + PORT + "\n");
                     while (true) {
                         txtServerLog.append("Waiting for client...\n");
+                        validate();
+                        sb.setValue( sb.getMaximum() );
                         Socket ss = s.accept();
                         txtServerLog.append("A user connected!\n");
+                        validate();
+                        sb.setValue( sb.getMaximum() );
                         ClientThread client = new ClientThread(ServerFrm.this, ss, clients);
                         clients.add(client);
                         pool.execute(client);
@@ -119,6 +125,8 @@ public class ServerFrm extends JFrame{
             serverThread.stop();
             s.close();
             txtServerLog.append("Server stopped.\n");
+            validate();
+            sb.setValue( sb.getMaximum() );
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -153,6 +161,8 @@ public class ServerFrm extends JFrame{
 
     public void ServerLogAppend(String text) {
         txtServerLog.append(text);
+        validate();
+        sb.setValue( sb.getMaximum() );
     }
 
     public void addUser(User s) {

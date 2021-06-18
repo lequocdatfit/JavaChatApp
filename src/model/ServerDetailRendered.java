@@ -22,7 +22,9 @@ public class ServerDetailRendered extends JPanel implements ListCellRenderer<Ser
 
     @Override
     public Component getListCellRendererComponent(JList<? extends ServerDetail> list, ServerDetail value, int index, boolean isSelected, boolean cellHasFocus) {
-        lbIcon.setText("icon");
+        ImageIcon imageIcon = new ImageIcon(new ImageIcon(getClass().getResource("/img/server.png"))
+                .getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT));
+        lbIcon.setIcon(imageIcon);
         lbHostName.setText(value.getHostName());
         lbPort.setText("Port: " + String.valueOf(value.getPort()));
         lbPort.setForeground(Color.BLUE);
